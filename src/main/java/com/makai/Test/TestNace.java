@@ -19,7 +19,7 @@ import org.junit.Test;
  * * */
 public class TestNace {
 
-    @Test
+   /* @Test
     public void testESAddIndex(){
         //创建客户端类
         RestHighLevelClient restHighLevelClient = new RestHighLevelClient(
@@ -51,6 +51,6 @@ public class TestNace {
         client.close();
     }
 
-
+*/
 
 }
