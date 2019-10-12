@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0"
+
+>
+
+
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    <!-- ================================== Spring的配置 ============================== -->
+    <!-- 监听器 -->
+    <!-- 这是有损公司提供的javaee监听器,如果
+        可以被监听到的事件有  可以进行自行的配置
+        特殊对象的创建和销毁
+
+        Request对象
+        Session对象
+        ServletContext对象
+        特殊对象中存入了值、修改值、删除值
+
+        Request对象
+        Session对象
+        ServletContext对象
+        其他
+     -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:applicationConText.xml</param-value>
+    </context-param>
+
+    <!-- 更改编码格式 -->
+    <filter>
+        <filter-name>encodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
+
+    <!-- 由读取xml文件来创建对象,然后通信模块如果 监听到了以上的项目就会执行-->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <!-- 指定applicationConText.xml的位置 加载 -->
+    <context-param>
+        <param-name>contextLoaderListener</param-name>
+        <param-value>classpath:applicationConText.xml</param-value>
+    </context-param>
+    <!-- =================================== springmvc的配置    ========================================== -->
+    <!-- 前端控制器 -->
+    <servlet>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <!-- 调用程序 中的这个配置文件  -->
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- 初始化就是为了加载spring文件
+            放入上下文空间: 上下文空间就是环境配置
+            相当于环境变量
+        -->
+        <init-param>
+            <!-- 这是为了放入ServletContext共享空间 -->
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:springmvc.xml</param-value>
+        </init-param>
+
+    </servlet>
+    <!-- 可以理解为一个匹配器,所有的*.do为后缀的文件 都会被映射到上面的初始化文件路径中  -->
+    <servlet-mapping>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+
+</web-app>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+   			http://www.springframework.org/schema/tx
+       		http://www.springframework.org/schema/tx/spring-tx.xsd
+    		http://www.springframework.org/schema/beans
+    		http://www.springframework.org/schema/beans/spring-beans.xsd
+    		http://www.springframework.org/schema/mvc
+        	http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        	http://www.springframework.org/schema/context
+       		http://www.springframework.org/schema/context/spring-context.xsd
+       		http://www.springframework.org/schema/aop
+       		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+<!-- 1.加载properties文件 -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    
+    <!-- 3.开启注解扫描
+        为了防止重复扫描,spring不扫描Controller
+        注解扫描 扫描这个包下的所有类 但是不扫描 前段控制器这个类
+     -->
+
+
+
+
+    <context:component-scan base-package="com.makai">
+        <!-- web.xml 中的东西起作用了,排除这个东西,不写注解  -->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!-- 4.创建DBCP的对象 数据库连接池 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <!-- 给数据库属性赋值 -->
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/db5?serverTimezone=UTC&amp;useSSL=false"/>
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
+    </bean>
+
+    <!-- 5.创建切面类对象: 事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 注入数据源 -->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!-- 注解开发所需要的事务配置 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--  创建Mybatis的配置文件 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!-- 注入数据源 -->
+        <property name="dataSource" ref="dataSource"></property>
+        <!-- 分页插件 -->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageHelper">
+                    <property name="properties">
+                        <value>
+                            <!--使用的数据库类型-->
+                            dialect=mysql
+                            reasonable=true
+                            supportMethodsArguments=true
+                            params=count=countSql
+                            autoRuntimeDialect=true
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+
+
+
+
+    </bean>
+
+
+    <!-- Spring容器通过扫描mapper文件的位置,生成mapper的代理对象 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--
+            注入SqlSessionFactory
+            值是String类型的bean的名字,所以用value
+        -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!-- mapper文件的位置 -->
+        <property name="basePackage" value="com.makai.mapper"></property>
+    </bean>
+    <!-- 1.创建自定义域对象 -->
+        <!--<bean id="myRealm" class="com.makai.realm.MyRealm"/>
+    &lt;!&ndash;穿件SecurityMananger,将自定义域赋值进来&ndash;&gt;
+        <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+            <property name="realm" ref="myRealm"/>
+        </bean>-->
+    <!--3.拦截器配置-->
+        <!--<bean id="" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+            &lt;!&ndash;注入securityManager&ndash;&gt;
+            <property name="securityManager" ref="securityManager"></property>
+            &lt;!&ndash;登录放行&ndash;&gt;
+            <property name="loginUrl" value="/index.jsp"/>
+            &lt;!&ndash; 没有权限的时候跳转到&ndash;&gt;
+            <property name="unauthorizedUrl" value="/erroe.jsp"></property>
+            &lt;!&ndash; 其他资源拦截 与 权限 &ndash;&gt;
+            <property name="filterChainDefinitions">
+                &lt;!&ndash; 静态资源放行 &ndash;&gt;
+                <value>
+                    /assets/** = anon
+                    /Js/** = anon
+                    &lt;!&ndash; 正常的页面资源权限 &ndash;&gt;
+                    /login.do = anon
+                    /user/add.do = authc,roles[admin]
+                    /user/update.do = authc,perms["/user/update"]
+                </value>
+
+            </property>
+        </bean>
+-->
+
+
+</beans>
